@@ -10,244 +10,124 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow-x: hidden; }
-        .executive-card { background: #ffffff; border-radius: 1.25rem; border: 1px solid #e2e8f0; shadow-sm; transition: all 0.3s ease; }
+        .executive-card { background: #ffffff; border-radius: 1.25rem; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
         .stat-card { transition: all 0.3s ease; border-radius: 1.25rem; cursor: pointer; border-bottom: 5px solid transparent; background: #fff; position: relative; }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .stat-card.active { border-bottom-color: #2563eb !important; background-color: #f0f7ff; }
-        .status-pill { padding: 0.4rem 0.8rem; border-radius: 0.6rem; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid transparent; }
+        .status-pill { padding: 0.4rem 0.8rem; border-radius: 0.6rem; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; display: inline-flex; align-items: center; gap: 0.4rem; border: 1px solid transparent; }
         .bg-late { background-color: #fee2e2; color: #991b1b; border-color: #f87171; }
         .bg-done { background-color: #dcfce7; color: #166534; border-color: #4ade80; }
         .bg-process { background-color: #fef3c7; color: #92400e; border-color: #fbbf24; }
         .bg-upcoming { background-color: #e0e7ff; color: #3730a3; border-color: #818cf8; }
-        select, input { background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #1e293b !important; border-radius: 0.75rem; padding: 0.7rem 1rem; outline: none; font-weight: 700; font-size: 0.9rem; }
-        thead th { background: #f8fafc; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 1.25rem; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
-        .text-content { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 1rem; line-height: 1.5; }
+        select, input { background: #ffffff !important; border: 1px solid #cbd5e1 !important; color: #1e293b !important; border-radius: 0.75rem; padding: 0.65rem 0.8rem; outline: none; font-weight: 600; font-size: 0.85rem; }
+        thead th { background: #f8fafc; color: #64748b; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 1rem; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
+        .text-content { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.95rem; }
+        
+        /* Modal Style - Cửa sổ chi tiết */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; align-items: center; justify-content: center; }
+        .modal-active { display: flex !important; }
+        .modal-overlay { position: absolute; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); }
+        .modal-container { background: white; width: 95%; max-width: 800px; border-radius: 1.5rem; z-index: 101; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body class="p-3 lg:p-5">
 
-    <!-- MONITOR CẬP NHẬT -->
-    <div class="max-w-[1850px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
-        <header class="lg:col-span-3 executive-card p-6 flex items-center space-x-4 border-l-8 border-l-blue-600 shadow-md">
-            <div class="bg-blue-600 w-14 h-14 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-landmark-flag text-white text-2xl"></i></div>
-            <div>
-                <h1 class="text-2xl font-extrabold text-slate-900 uppercase leading-none tracking-tighter">Tân Mai <span class="text-blue-600">Digital IOC</span></h1>
-                <p id="live-clock" class="text-[10px] font-bold text-slate-500 mt-2 uppercase tracking-widest"></p>
+    <!-- CỬA SỔ CHI TIẾT HỒ SƠ (MODAL) -->
+    <div id="detailModal" class="modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-container">
+            <div class="bg-blue-700 p-6 text-white flex justify-between items-center">
+                <h2 class="text-xl font-bold uppercase tracking-tight flex items-center gap-2"><i class="fa-solid fa-file-invoice"></i> Chi tiết hồ sơ tác nghiệp</h2>
+                <button onclick="closeModal()" class="hover:rotate-90 transition-all"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
-        </header>
-        <div class="lg:col-span-9 executive-card p-4 shadow-sm relative">
-            <span class="text-[11px] font-black uppercase text-slate-400 italic tracking-widest flex items-center gap-2 mb-3">
-                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Nhật ký cập nhật dữ liệu cán bộ (Tự động nhận diện 100%)
-            </span>
-            <div id="update-monitor" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 overflow-y-auto max-h-28 pr-2"></div>
-            <button onclick="fetchData()" class="absolute top-4 right-4 text-blue-600 hover:rotate-180 transition-all duration-500"><i class="fa-solid fa-sync text-sm"></i></button>
+            <div id="modal-content" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto">
+                <!-- Dữ liệu chi tiết sẽ đổ vào đây -->
+            </div>
+            <div class="bg-slate-50 p-4 border-t flex justify-end gap-3">
+                <button onclick="window.print()" class="bg-slate-800 text-white px-5 py-2 rounded-xl font-bold text-sm"><i class="fa-solid fa-print mr-2"></i>In phiếu</button>
+                <button onclick="closeModal()" class="bg-white border border-slate-300 text-slate-700 px-5 py-2 rounded-xl font-bold text-sm">Đóng</button>
+            </div>
         </div>
     </div>
 
-    <!-- BỘ LỌC -->
-    <div class="max-w-[1850px] mx-auto executive-card p-5 mb-6 flex flex-wrap items-center gap-4 justify-between shadow-md border-t-4 border-t-blue-400">
-        <div class="flex flex-wrap items-center gap-4">
-            <div class="flex flex-col"><span class="text-[10px] font-black text-blue-600 uppercase mb-1 ml-1">Phòng Ban</span><select id="filter-dept" onchange="resetQuickFilter(); applyFilters();" class="w-52"></select></div>
-            <div class="flex flex-col"><span class="text-[10px] font-black text-slate-500 uppercase mb-1 ml-1">Cán bộ thụ lý</span><select id="filter-staff" onchange="resetQuickFilter(); applyFilters();" class="w-52"></select></div>
-            <div class="flex flex-col"><span class="text-[10px] font-black text-slate-500 uppercase mb-1 ml-1">Kỳ báo cáo</span><select id="filter-time" onchange="toggleCustomDate(); applyFilters();" class="w-44"><option value="all">Toàn bộ thời gian</option><option value="month">Tháng này</option><option value="custom">Chọn ngày</option></select></div>
-            <div id="custom-date-container" class="hidden flex items-center gap-2 border-l pl-3"><input type="date" id="date-from" onchange="applyFilters()" class="w-36"><input type="date" id="date-to" onchange="applyFilters()" class="w-36"></div>
+    <!-- TOP: MONITOR CẬP NHẬT -->
+    <div class="max-w-[1850px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+        <header class="lg:col-span-3 executive-card p-5 flex items-center space-x-4 border-l-8 border-l-blue-600 shadow-sm">
+            <div class="bg-blue-600 w-14 h-14 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-landmark-flag text-white text-2xl"></i></div>
+            <div>
+                <h1 class="text-xl font-extrabold text-slate-900 uppercase leading-none tracking-tighter">Tân Mai <span class="text-blue-600">Digital IOC</span></h1>
+                <p id="live-clock" class="text-[10px] font-bold text-slate-500 mt-2 uppercase"></p>
+            </div>
+        </header>
+        <div class="lg:col-span-9 executive-card p-4 shadow-sm relative">
+            <span class="text-[10px] font-black uppercase text-slate-400 italic tracking-widest flex items-center gap-2 mb-3">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Nhật ký cập nhật dữ liệu cán bộ (Tự động 100%)
+            </span>
+            <div id="update-monitor" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 overflow-y-auto max-h-24 pr-2 text-center"></div>
+            <button onclick="fetchData()" class="absolute top-4 right-4 text-blue-600 hover:rotate-180 transition-all duration-500"><i class="fa-solid fa-sync text-xs"></i></button>
         </div>
-        <div class="flex flex-col"><span class="text-[10px] font-black text-slate-400 uppercase mb-1 ml-1">Tìm hồ sơ / nội dung</span><input type="text" id="search-box" onkeyup="applyFilters()" placeholder="Gõ tên, mã, nội dung..." class="w-80"></div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="max-w-[1850px] mx-auto executive-card p-4 mb-6 flex flex-wrap items-center gap-4 justify-between shadow-sm border-t-4 border-t-slate-300">
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="flex flex-col"><span class="text-[9px] font-black text-blue-600 uppercase mb-1">Phòng Ban</span><select id="filter-dept" onchange="resetQuickFilter(); applyFilters();" class="w-44"></select></div>
+            <div class="flex flex-col"><span class="text-[9px] font-black text-slate-500 uppercase mb-1">Cán bộ thụ lý</span><select id="filter-staff" onchange="resetQuickFilter(); applyFilters();" class="w-44"></select></div>
+            <div class="flex flex-col"><span class="text-[9px] font-black text-slate-500 uppercase mb-1">Kỳ báo cáo</span><select id="filter-time" onchange="toggleCustomDate(); applyFilters();" class="w-44"><option value="all">Toàn bộ thời gian</option><option value="month">Tháng này</option><option value="custom">Chọn ngày</option></select></div>
+            <div id="custom-date-container" class="hidden flex items-center gap-2 border-l pl-3"><input type="date" id="date-from" onchange="applyFilters()" class="w-32"><input type="date" id="date-to" onchange="applyFilters()" class="w-32"></div>
+        </div>
+        <input type="text" id="search-box" onkeyup="applyFilters()" placeholder="Tìm tên, mã, nội dung..." class="w-72 shadow-sm">
     </div>
 
     <!-- KPI CHỈ SỐ -->
     <div class="max-w-[1850px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 text-center">
-        <div onclick="setQuickFilter('all')" id="card-all" class="stat-card p-7 border-b-blue-600 active shadow-sm">
-            <p id="stat-title" class="text-slate-500 text-[10px] font-black uppercase italic">Toàn phường</p>
-            <h2 id="st-tong" class="text-6xl font-black mt-2 text-slate-900 tracking-tighter">0</h2>
-            <p id="st-percent" class="text-[12px] font-bold text-blue-600 mt-2 italic"></p>
+        <div onclick="setQuickFilter('all')" id="card-all" class="stat-card p-6 border-b-blue-600 active shadow-sm">
+            <p id="stat-title" class="text-slate-500 text-[10px] font-black uppercase italic">Tiếp nhận</p>
+            <h2 id="st-tong" class="text-5xl font-black mt-1 text-slate-900 tracking-tighter">0</h2>
+            <p id="st-percent" class="text-[11px] font-bold text-blue-600 mt-1 italic"></p>
         </div>
-        <div onclick="setQuickFilter('done')" id="card-done" class="stat-card p-7 border-b-emerald-500 shadow-sm"><p class="text-emerald-600 text-[10px] font-black uppercase">Đã hoàn thành</p><h2 id="st-xong" class="text-5xl font-black mt-2 text-emerald-600 tracking-tighter">0</h2></div>
-        <div onclick="setQuickFilter('processing')" id="card-processing" class="stat-card p-7 border-b-amber-500 shadow-sm"><p class="text-amber-500 text-[10px] font-black uppercase">Đang giải quyết</p><h2 id="st-dang" class="text-5xl font-black mt-2 text-amber-600 tracking-tighter">0</h2></div>
-        <div onclick="setQuickFilter('upcoming')" id="card-upcoming" class="stat-card p-7 border-b-indigo-500 shadow-sm"><p class="text-indigo-400 text-[10px] font-black uppercase">Sắp đến hạn</p><h2 id="st-sap" class="text-5xl font-black mt-2 text-indigo-700 tracking-tighter">0</h2></div>
-        <div onclick="setQuickFilter('late')" id="card-late" class="stat-card p-7 border-b-rose-500 shadow-sm"><p class="text-rose-500 text-[10px] font-black uppercase animate-pulse">Quá hạn xử lý</p><h2 id="st-tre" class="text-5xl font-black mt-2 text-rose-600 tracking-tighter">0</h2></div>
+        <div onclick="setQuickFilter('done')" id="card-done" class="stat-card p-6 border-b-emerald-500 shadow-sm"><p class="text-emerald-600 text-[10px] font-black uppercase">Đã hoàn thành</p><h2 id="st-xong" class="text-4xl font-black mt-1 text-emerald-600">0</h2></div>
+        <div onclick="setQuickFilter('processing')" id="card-processing" class="stat-card p-6 border-b-amber-500 shadow-sm"><p class="text-amber-500 text-[10px] font-black uppercase">Đang giải quyết</p><h2 id="st-dang" class="text-4xl font-black mt-1 text-amber-600">0</h2></div>
+        <div onclick="setQuickFilter('upcoming')" id="card-upcoming" class="stat-card p-6 border-b-indigo-500 shadow-sm"><p class="text-indigo-400 text-[10px] font-black uppercase">Sắp đến hạn</p><h2 id="st-sap" class="text-4xl font-black mt-1 text-indigo-700">0</h2></div>
+        <div onclick="setQuickFilter('late')" id="card-late" class="stat-card p-6 border-b-rose-500 shadow-sm"><p class="text-rose-500 text-[10px] font-black uppercase animate-pulse">Quá hạn / Chậm</p><h2 id="st-tre" class="text-4xl font-black mt-1 text-rose-600">0</h2></div>
     </div>
 
-    <!-- 4 BIỂU ĐỒ -->
-    <div class="max-w-[1850px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10 text-center">
-        <div class="lg:col-span-3 executive-card p-6 shadow-sm flex flex-col items-center">
-            <h3 class="text-[12px] font-black mb-4 uppercase text-slate-700 w-full"><i class="fa-solid fa-chart-pie text-blue-600 mr-2"></i> TỶ LỆ XỬ LÝ HỒ SƠ</h3>
-            <div class="h-52 w-full"><canvas id="statusChart"></canvas></div>
+    <!-- 4 BIỂU ĐỒ CÂN ĐỐI -->
+    <div class="max-w-[1850px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 mb-6">
+        <div class="lg:col-span-3 executive-card p-5 shadow-sm text-center">
+            <h3 class="text-[11px] font-black mb-4 uppercase text-slate-700">TỶ LỆ XỬ LÝ HỒ SƠ</h3>
+            <div class="h-48"><canvas id="statusChart"></canvas></div>
         </div>
-        <div class="lg:col-span-2 executive-card p-6 shadow-sm flex flex-col items-center">
-            <h3 class="text-[12px] font-black mb-4 uppercase text-emerald-600 w-full">PHÒNG BAN</h3>
-            <div class="h-52 w-full"><canvas id="deptChart"></canvas></div>
+        <div class="lg:col-span-2 executive-card p-5 shadow-sm text-center border-x">
+            <h3 class="text-[11px] font-black mb-4 uppercase text-emerald-600">PHÒNG BAN</h3>
+            <div class="h-48"><canvas id="deptChart"></canvas></div>
         </div>
-        <div class="lg:col-span-3 executive-card p-6 shadow-sm flex flex-col items-center bg-blue-50/20 border-blue-100">
-            <h3 class="text-[12px] font-black mb-4 uppercase text-blue-800 w-full">TỶ TRỌNG CÔNG VIỆC</h3>
-            <div class="h-52 w-full"><canvas id="shareChart"></canvas></div>
+        <div class="lg:col-span-3 executive-card p-5 shadow-sm text-center bg-blue-50/30">
+            <h3 class="text-[11px] font-black mb-4 uppercase text-blue-700">TỶ TRỌNG CÔNG VIỆC</h3>
+            <div class="h-48"><canvas id="shareChart"></canvas></div>
         </div>
-        <div class="lg:col-span-4 executive-card p-6 shadow-sm flex flex-col items-center">
-            <h3 class="text-[12px] font-black mb-4 uppercase text-orange-600 w-full">NĂNG SUẤT TIẾP NHẬN</h3>
-            <div class="h-52 w-full"><canvas id="staffChart"></canvas></div>
+        <div class="lg:col-span-4 executive-card p-5 shadow-sm text-center">
+            <h3 class="text-[11px] font-black mb-4 uppercase text-orange-600">NĂNG SUẤT TIẾP NHẬN</h3>
+            <div class="h-48"><canvas id="staffChart"></canvas></div>
         </div>
     </div>
 
-    <!-- BẢNG CHI TIẾT -->
-    <div class="max-w-[1850px] mx-auto executive-card overflow-hidden shadow-lg mb-10">
-        <div class="px-8 py-5 bg-slate-50 border-b flex justify-between items-center border-slate-200">
-            <h3 class="font-extrabold text-slate-800 uppercase italic text-[13px] tracking-widest flex items-center gap-3">
-                <span class="w-2 h-6 bg-blue-600 rounded-full"></span> Nhật ký điều hành hồ sơ chi tiết
-            </h3>
-            <span id="result-count" class="bg-slate-900 text-white px-4 py-1.5 rounded-xl text-[11px] font-black">0 HỒ SƠ</span>
-        </div>
-        <div class="overflow-auto max-h-[700px]">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr>
-                        <th class="px-8">Mã hồ sơ</th>
-                        <th class="px-8 w-1/3 text-blue-700">Nội dung thủ tục</th>
-                        <th class="px-8">Phòng ban</th>
-                        <th class="px-8">Cán bộ thụ lý</th>
-                        <th class="px-8 text-center">Hạn trả</th>
-                        <th class="px-8 text-center">Trạng thái</th>
-                    </tr>
-                </thead>
-                <tbody id="main-table" class="divide-y divide-slate-200 text-[15px] font-bold bg-white text-slate-800 italic"></tbody>
-            </table>
-        </div>
+    <!-- BẢNG DANH SÁCH -->
+    <div class="max-w-[1850px] mx-auto executive-card overflow-hidden shadow-sm mb-10 border-t-4 border-t-blue-600">
+        <div class="px-6 py-4 bg-slate-50 border-b flex justify-between items-center"><h3 class="font-black text-slate-800 uppercase italic text-[11px] flex items-center gap-2"><i class="fa-solid fa-circle-info text-blue-600"></i> Danh sách hồ sơ (Nhấn vào hàng để xem chi tiết)</h3><span id="result-count" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px] font-black">0 HỒ SƠ</span></div>
+        <div class="overflow-auto max-h-[600px]"><table class="w-full text-left border-collapse cursor-pointer"><thead><tr><th class="px-6">Mã hồ sơ</th><th class="px-6 w-1/3">Nội dung thủ tục</th><th class="px-6">Phòng</th><th class="px-6">Cán bộ</th><th class="px-6 text-center">Hạn trả</th><th class="px-6 text-center">Trạng thái</th></tr></thead><tbody id="main-table" class="divide-y divide-slate-100 text-[14px] font-bold bg-white text-slate-700 italic"></tbody></table></div>
     </div>
 
     <script>
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT4nKahZSB2c_xG2Te2nixkVdtedCohaJ-X5fA21FB9sf8DQI_vEjcg9K0f0xMWI4OB9Gq1ezLD_l4N/pub?gid=1707807946&single=true&output=csv';
+        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKU4-zaoOYL1wM1im8Pou1YJHXdfuvTKs23Sd_WhzItBACVGVBP0tTpxjOe9C8EKpGb_eOA6-bg44k/pub?gid=548313690&single=true&output=csv';
 
         let originalData = [];
         let quickFilter = 'all';
         let charts = {};
 
         function parseCSV(text) {
-            const result = [];
-            let row = [], cell = "", inQuotes = false;
-            for (let i = 0; i < text.length; i++) {
-                let char = text[i], nxt = text[i+1];
-                if (char === '"' && inQuotes && nxt === '"') { cell += '"'; i++; }
-                else if (char === '"') inQuotes = !inQuotes;
-                else if (char === ',' && !inQuotes) { row.push(cell); cell = ""; }
-                else if ((char === '\r' || char === '\n') && !inQuotes) {
-                    if (cell !== "" || row.length > 0) { row.push(cell); result.push(row); }
-                    row = []; cell = ""; if (char === '\r' && nxt === '\n') i++;
-                } else cell += char;
-            }
-            if (cell !== "" || row.length > 0) { row.push(cell); result.push(row); }
-            return result;
-        }
-
-        async function fetchData() {
-            try {
-                const res = await fetch(CSV_URL);
-                const text = await res.text();
-                const allRows = parseCSV(text);
-                
-                // CẢI TIẾN BỘ LỌC CỰC MẠNH: Bỏ qua hàng tiêu đề "Mã Hồ Sơ", lấy mọi dòng có nội dung ở cột B và cột E
-                originalData = allRows.filter(r => r[1] && r[4] && r[1] !== "Mã Hồ Sơ" && r[1] !== "Mã hồ sơ").map(r => {
-                    const statusRaw = r[8] ? r[8].trim() : "Đang xử lý";
-                    const deadline = parseDate(r[6]);
-                    let computed = "processing";
-                    if (statusRaw.toLowerCase().includes("hoàn thành") || statusRaw.toLowerCase().includes("kết quả")) computed = "done";
-                    else if (deadline && deadline < new Date()) computed = "late";
-                    else if (deadline && (deadline - new Date())/(1000*60*60*24) <= 2) computed = "upcoming";
-
-                    return {
-                        id: r[1].trim(), content: r[2] || "Trống", staff: r[4].trim(),
-                        receiveDate: parseDate(r[5]), deadline: deadline, dept: r[7] || "VPĐ",
-                        statusText: statusRaw, computedStatus: computed, lastUpdateStr: r[5] || "--"
-                    };
-                });
-                populateFilters(); updateMonitor(); applyFilters();
-            } catch (err) { console.error(err); }
-        }
-
-        function parseDate(str) { if (!str || str.trim() === "") return null; const p = str.split('/'); return p.length === 3 ? new Date(p[2].trim(), p[1]-1, p[0].trim()) : null; }
-        function toggleCustomDate() { document.getElementById('custom-date-container').classList.toggle('hidden', document.getElementById('filter-time').value !== 'custom'); }
-        
-        function populateFilters() {
-            const staffs = [...new Set(originalData.map(d => d.staff))].sort().filter(Boolean);
-            const depts = [...new Set(originalData.map(d => d.dept))].sort().filter(Boolean);
-            const sSelect = document.getElementById('filter-staff'), dSelect = document.getElementById('filter-dept');
-            const sCur = sSelect.value, dCur = dSelect.value;
-            sSelect.innerHTML = '<option value="all">Tất cả Cán bộ</option>';
-            staffs.forEach(s => sSelect.innerHTML += `<option value="${s}" ${s===sCur?'selected':''}>${s}</option>`);
-            dSelect.innerHTML = '<option value="all">Tất cả Phòng / Lĩnh vực</option>';
-            depts.forEach(d => dSelect.innerHTML += `<option value="${d}" ${d===dCur?'selected':''}>${d}</option>`);
-        }
-
-        function setQuickFilter(type) { quickFilter = type; document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active')); document.getElementById('card-' + type).classList.add('active'); applyFilters(); }
-        function resetQuickFilter() { quickFilter = 'all'; document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active')); document.getElementById('card-all').classList.add('active'); }
-
-        function updateMonitor() {
-            const staffs = [...new Set(originalData.map(d => d.staff))].filter(Boolean);
-            document.getElementById('update-monitor').innerHTML = staffs.map(name => {
-                const personData = originalData.filter(d => d.staff === name);
-                const lastDate = personData.length > 0 ? personData[0].lastUpdateStr : "--";
-                return `<div class="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-sm text-center">
-                    <p class="text-[9px] font-black text-slate-400 uppercase truncate" title="${name}">${name}</p>
-                    <p class="text-[11px] font-extrabold text-blue-600 mt-1">${lastDate}</p>
-                </div>`;
-            }).join('');
-        }
-
-        function applyFilters() {
-            const dept = document.getElementById('filter-dept').value, staff = document.getElementById('filter-staff').value, timeMode = document.getElementById('filter-time').value, search = document.getElementById('search-box').value.toLowerCase().trim();
-            const now = new Date(), dFrom = document.getElementById('date-from').value ? new Date(document.getElementById('date-from').value) : null, dTo = document.getElementById('date-to').value ? new Date(document.getElementById('date-to').value) : null;
-
-            const baseFiltered = originalData.filter(d => {
-                const matchDept = dept === 'all' || d.dept === dept, matchStaff = staff === 'all' || d.staff === staff, matchSearch = search === '' || d.id.toLowerCase().includes(search) || d.content.toLowerCase().includes(search);
-                let matchTime = true;
-                if(d.receiveDate) { if(timeMode === 'month') matchTime = d.receiveDate.getMonth() === now.getMonth() && d.receiveDate.getFullYear() === now.getFullYear(); else if(timeMode === 'custom' && dFrom && dTo) matchTime = d.receiveDate >= dFrom && d.receiveDate <= dTo; }
-                return matchDept && matchStaff && matchSearch && matchTime;
-            });
-
-            const totalPhuong = originalData.length;
-            const percent = ((baseFiltered.length / totalPhuong) * 100).toFixed(1);
-            document.getElementById('stat-title').innerText = staff === 'all' ? (dept === 'all' ? "Tiếp nhận toàn phường" : "Phòng: " + dept) : "CB: " + staff;
-            document.getElementById('st-tong').innerText = baseFiltered.length;
-            document.getElementById('st-percent').innerText = staff === 'all' && dept === 'all' ? "" : `Chiếm ${percent}% khối lượng Phường`;
-
-            document.getElementById('st-xong').innerText = baseFiltered.filter(i => i.computedStatus === 'done').length;
-            document.getElementById('st-dang').innerText = baseFiltered.filter(i => i.computedStatus === 'processing').length;
-            document.getElementById('st-tre').innerText = baseFiltered.filter(i => i.computedStatus === 'late').length;
-            document.getElementById('st-sap').innerText = baseFiltered.filter(i => i.computedStatus === 'upcoming').length;
-
-            const finalData = baseFiltered.filter(d => quickFilter === 'all' || d.computedStatus === quickFilter);
-            renderTable(finalData);
-            updateCharts(baseFiltered, staff);
-        }
-
-        function renderTable(data) {
-            document.getElementById('main-table').innerHTML = data.map(d => {
-                let cls = "bg-process", icon = "fa-clock", label = d.statusText;
-                if(d.computedStatus === 'done') { cls = "bg-done"; icon = "fa-check-circle"; }
-                else if(d.computedStatus === 'late') { cls = "bg-late animate-pulse"; icon = "fa-triangle-exclamation"; label = "Quá hạn"; }
-                else if(d.computedStatus === 'upcoming') { cls = "bg-upcoming"; icon = "fa-hourglass-half"; label = "Sắp hạn"; }
-                return `<tr class="hover:bg-slate-50"><td class="px-8 py-5 font-mono text-blue-700 font-black text-[12px]">${d.id}</td><td class="px-8 py-5 text-slate-800 leading-relaxed"><div class="text-content font-bold">${d.content}</div></td><td class="px-8 py-5 text-[11px] font-black text-slate-400 uppercase">${d.dept}</td><td class="px-8 py-5 text-[11px] font-black uppercase text-slate-600 italic">${d.staff}</td><td class="px-8 py-5 text-xs text-slate-500 font-bold text-center">${d.deadline ? d.deadline.toLocaleDateString('vi-VN') : '--'}</td><td class="px-8 py-5 text-center"><span class="status-pill ${cls}"><i class="fa-solid ${icon}"></i>${label}</span></td></tr>`;
-            }).join('');
-            document.getElementById('result-count').innerText = `${data.length} HỒ SƠ`;
-        }
-
-        function updateCharts(data, staffName) {
-            const sCtx = document.getElementById('statusChart').getContext('2d'), dCtx = document.getElementById('deptChart').getContext('2d'), stCtx = document.getElementById('staffChart').getContext('2d'), shareCtx = document.getElementById('shareChart').getContext('2d');
-            if (charts.status) charts.status.destroy(); if (charts.dept) charts.dept.destroy(); if (charts.staff) charts.staff.destroy(); if (charts.share) charts.share.destroy();
-            
-            charts.status = new Chart(sCtx, { type: 'doughnut', data: { labels: ['Xong', 'Đang làm', 'Trễ', 'Sắp hạn'], datasets: [{ data: [data.filter(i => i.computedStatus === 'done').length, data.filter(i => i.computedStatus === 'processing').length, data.filter(i => i.computedStatus === 'late').length, data.filter(i => i.computedStatus === 'upcoming').length], backgroundColor: ['#10b981', '#f59e0b', '#f43f5e', '#6366f1'], borderWidth: 0 }] }, options: { cutout: '70%', maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 13, weight: 'bold' } } } } } });
-            const depts = [...new Set(originalData.map(d => d.dept))].filter(Boolean);
-            charts.dept = new Chart(dCtx, { type: 'bar', data: { labels: depts, datasets: [{ label: 'Hồ sơ', data: depts.map(n => data.filter(d => d.dept === n).length), backgroundColor: '#10b981', borderRadius: 5 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { ticks: { font: { size: 11, weight: 'bold' } } } } } });
-            
-            const otherCount = originalData.length - data.length;
-            charts.share = new Chart(shareCtx, { type: 'pie', data: { labels: [staffName === 'all' ? 'Đang chọn' : staffName, 'Khác'], datasets: [{ data: [data.length, otherCount], backgroundColor: ['#3b82f6', '#e2e8f0'], borderWidth: 2, borderColor: '#fff' }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 13, weight: 'bold' } } } } } });
-            
-            const staffsInFilter = [...new Set(data.map(d => d.staff))].filter(Boolean); 
-            charts.staff = new Chart(stCtx, { type: 'bar', data: { labels: staffsInFilter, datasets: [{ label: 'Tiếp nhận', data: staffsInFilter.map(n => data.filter(d => d.staff === n).length), backgroundColor: '#3b82f6', borderRadius: 8 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { ticks: { font: { size: 10, weight: 'bold' }, autoSkip: false, maxRotation: 45 } } } } });
-        }
-
-        setInterval(() => { const n = new Date(); document.getElementById('live-clock').innerText = n.toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
-        fetchData(); setInterval(fetchData, 300000);
-    </script>
-</body>
-</html>
+            const result = []; let row = [], cell = "", inQuotes = false;
+            for (let i = 0; i
