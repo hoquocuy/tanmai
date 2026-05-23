@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tân Mai Digital IOC - Trung Tâm Điều Hành Tổng Lực</title>
+    <title>Tân Mai Digital IOC - Trung Tâm kiểm soát thủ tuch hành chính</title>
+    <title>Tân Mai Digital IOC - Trung Tâm kiểm soát thủ tục hành chính</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -144,7 +145,7 @@
                 const res = await fetch(CSV_URL);
                 const text = await res.text();
                 const allRows = parseCSV(text);
-                
+
                 // CẢI TIẾN BỘ LỌC CỰC MẠNH: Bỏ qua hàng tiêu đề "Mã Hồ Sơ", lấy mọi dòng có nội dung ở cột B và cột E
                 originalData = allRows.filter(r => r[1] && r[4] && r[1] !== "Mã Hồ Sơ" && r[1] !== "Mã hồ sơ").map(r => {
                     const statusRaw = r[8] ? r[8].trim() : "Đang xử lý";
@@ -166,7 +167,7 @@
 
         function parseDate(str) { if (!str || str.trim() === "") return null; const p = str.split('/'); return p.length === 3 ? new Date(p[2].trim(), p[1]-1, p[0].trim()) : null; }
         function toggleCustomDate() { document.getElementById('custom-date-container').classList.toggle('hidden', document.getElementById('filter-time').value !== 'custom'); }
-        
+
         function populateFilters() {
             const staffs = [...new Set(originalData.map(d => d.staff))].sort().filter(Boolean);
             const depts = [...new Set(originalData.map(d => d.dept))].sort().filter(Boolean);
@@ -234,14 +235,14 @@
         function updateCharts(data, staffName) {
             const sCtx = document.getElementById('statusChart').getContext('2d'), dCtx = document.getElementById('deptChart').getContext('2d'), stCtx = document.getElementById('staffChart').getContext('2d'), shareCtx = document.getElementById('shareChart').getContext('2d');
             if (charts.status) charts.status.destroy(); if (charts.dept) charts.dept.destroy(); if (charts.staff) charts.staff.destroy(); if (charts.share) charts.share.destroy();
-            
+
             charts.status = new Chart(sCtx, { type: 'doughnut', data: { labels: ['Xong', 'Đang làm', 'Trễ', 'Sắp hạn'], datasets: [{ data: [data.filter(i => i.computedStatus === 'done').length, data.filter(i => i.computedStatus === 'processing').length, data.filter(i => i.computedStatus === 'late').length, data.filter(i => i.computedStatus === 'upcoming').length], backgroundColor: ['#10b981', '#f59e0b', '#f43f5e', '#6366f1'], borderWidth: 0 }] }, options: { cutout: '70%', maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 13, weight: 'bold' } } } } } });
             const depts = [...new Set(originalData.map(d => d.dept))].filter(Boolean);
             charts.dept = new Chart(dCtx, { type: 'bar', data: { labels: depts, datasets: [{ label: 'Hồ sơ', data: depts.map(n => data.filter(d => d.dept === n).length), backgroundColor: '#10b981', borderRadius: 5 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { ticks: { font: { size: 11, weight: 'bold' } } } } } });
-            
+
             const otherCount = originalData.length - data.length;
             charts.share = new Chart(shareCtx, { type: 'pie', data: { labels: [staffName === 'all' ? 'Đang chọn' : staffName, 'Khác'], datasets: [{ data: [data.length, otherCount], backgroundColor: ['#3b82f6', '#e2e8f0'], borderWidth: 2, borderColor: '#fff' }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 13, weight: 'bold' } } } } } });
-            
+
             const staffsInFilter = [...new Set(data.map(d => d.staff))].filter(Boolean); 
             charts.staff = new Chart(stCtx, { type: 'bar', data: { labels: staffsInFilter, datasets: [{ label: 'Tiếp nhận', data: staffsInFilter.map(n => data.filter(d => d.staff === n).length), backgroundColor: '#3b82f6', borderRadius: 8 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true }, x: { ticks: { font: { size: 10, weight: 'bold' }, autoSkip: false, maxRotation: 45 } } } } });
         }
