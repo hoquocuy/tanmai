@@ -3,38 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tân Mai Digital IOC - Trung Tâm Điều Hành</title>
+    <title>Tân Mai Digital IOC - Trung Tâm Điều Hành Chuyên Nghiệp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; color: #1e293b; overflow-x: hidden; }
-        .executive-card { background: #ffffff; border-radius: 1rem; border: 1px solid #e2e8f0; transition: all 0.3s ease; }
+        .executive-card { background: #ffffff; border-radius: 1rem; border: 1px solid #e2e8f0; transition: all 0.3s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         
-        /* Dòng thống kê cao bằng 2/3 bản cũ (Khoảng 110px) */
-        .stat-card { transition: all 0.3s ease; border-radius: 1rem; cursor: pointer; border-bottom: 4px solid transparent; background: #fff; height: 110px; display: flex; flex-direction: column; justify-content: center; padding: 0.75rem 1.25rem; }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        /* Ép chiều cao dòng Thống kê & Biểu đồ bằng 2/3 bản cũ */
+        .stat-card { height: 95px; border-radius: 1rem; cursor: pointer; border-bottom: 5px solid transparent; background: #fff; display: flex; flex-direction: column; justify-content: center; padding: 0.5rem 1.25rem; transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
         .stat-card.active { border-bottom-color: #2563eb !important; background-color: #f0f7ff; }
         
-        /* Dòng biểu đồ cao bằng dòng thống kê */
-        .chart-box { height: 110px !important; position: relative; display: flex; align-items: center; justify-content: center; }
+        /* Ép chiều cao biểu đồ bằng dòng thống kê */
+        .chart-box { height: 95px !important; width: 100%; position: relative; display: flex; align-items: center; justify-content: center; }
 
-        .status-pill { padding: 0.3rem 0.6rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; display: inline-flex; align-items: center; gap: 0.3rem; }
-        .bg-late { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
-        .bg-done { background-color: #dcfce7; color: #166534; border: 1px solid #4ade80; }
-        .bg-process { background-color: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
-        .bg-upcoming { background-color: #e0e7ff; color: #3730a3; border: 1px solid #818cf8; }
+        .status-pill { padding: 0.3rem 0.6rem; border-radius: 0.5rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; border: 1px solid transparent; }
+        .bg-late { background-color: #fee2e2; color: #991b1b; border-color: #f87171; }
+        .bg-done { background-color: #dcfce7; color: #166534; border-color: #4ade80; }
+        .bg-process { background-color: #fef3c7; color: #92400e; border-color: #fbbf24; }
+        .bg-upcoming { background-color: #e0e7ff; color: #3730a3; border-color: #818cf8; }
 
-        select, input { border: 1px solid #cbd5e1 !important; border-radius: 0.5rem !important; padding: 0.5rem 0.7rem !important; font-weight: 600; font-size: 0.8rem; outline: none; }
-        thead th { background: #f8fafc; color: #64748b; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.75rem; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
-        .text-content { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.9rem; font-weight: 700; line-height: 1.3; }
+        select, input { border: 1px solid #cbd5e1 !important; border-radius: 0.6rem !important; padding: 0.5rem !important; font-weight: 700; font-size: 0.8rem; outline: none; }
+        thead th { background: #f8fafc; color: #64748b; font-size: 0.65rem; text-transform: uppercase; padding: 0.8rem; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #e2e8f0; }
         
-        /* Modal Chi tiết */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; align-items: center; justify-content: center; }
         .modal-active { display: flex !important; }
         .modal-overlay { position: absolute; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); }
-        .modal-container { background: white; width: 95%; max-width: 750px; border-radius: 1.25rem; z-index: 101; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .modal-container { background: white; width: 95%; max-width: 700px; border-radius: 1.25rem; z-index: 101; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
 
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -46,77 +44,76 @@
     <div id="detailModal" class="modal">
         <div class="modal-overlay" onclick="closeModal()"></div>
         <div class="modal-container">
-            <div class="bg-blue-800 p-5 text-white flex justify-between items-center">
-                <h2 class="text-lg font-bold uppercase flex items-center gap-2"><i class="fa-solid fa-file-circle-check"></i> Chi tiết hồ sơ</h2>
+            <div class="bg-blue-800 p-4 text-white flex justify-between items-center">
+                <h2 class="font-bold uppercase flex items-center gap-2 text-sm"><i class="fa-solid fa-file-invoice"></i> Thông tin hồ sơ</h2>
                 <button onclick="closeModal()"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <div id="modal-content" class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto text-sm"></div>
-            <div class="bg-slate-50 p-4 border-t flex justify-end gap-3">
-                <button onclick="window.print()" class="bg-slate-800 text-white px-5 py-2 rounded-lg font-bold text-xs italic">In phiếu chi tiết</button>
-                <button onclick="closeModal()" class="bg-white border border-slate-300 px-5 py-2 rounded-lg font-bold text-xs">Đóng</button>
+            <div id="modal-content" class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto text-sm"></div>
+            <div class="bg-slate-50 p-3 border-t flex justify-end gap-2">
+                <button onclick="window.print()" class="bg-slate-800 text-white px-4 py-1.5 rounded font-bold text-[10px]">IN PHIẾU</button>
+                <button onclick="closeModal()" class="bg-white border border-slate-300 px-4 py-1.5 rounded font-bold text-[10px]">ĐÓNG</button>
             </div>
         </div>
     </div>
 
-    <!-- HEADER & MONITOR -->
+    <!-- MONITOR GIÁM SÁT -->
     <div class="max-w-[1850px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-3 mb-4">
-        <header class="lg:col-span-3 executive-card p-4 flex items-center space-x-3 border-l-8 border-l-blue-600 shadow-sm">
-            <div class="bg-blue-600 w-12 h-12 rounded-lg flex items-center justify-center shadow-md"><i class="fa-solid fa-landmark text-white text-xl"></i></div>
+        <header class="lg:col-span-3 executive-card p-4 flex items-center space-x-3 border-l-8 border-l-blue-600">
+            <div class="bg-blue-600 w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-landmark text-white text-xl"></i></div>
             <div>
-                <h1 class="text-lg font-extrabold text-slate-900 uppercase leading-none">Tân Mai <span class="text-blue-600">Digital IOC</span></h1>
+                <h1 class="text-base font-black text-slate-900 uppercase leading-none">Tân Mai IOC</h1>
                 <p id="live-clock" class="text-[9px] font-bold text-slate-500 mt-1 uppercase"></p>
             </div>
         </header>
-        <div class="lg:col-span-9 executive-card p-3 shadow-sm relative">
-            <span class="text-[9px] font-black uppercase text-slate-400 italic flex items-center gap-2 mb-2 ml-1">
-                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Nhật ký cập nhật cán bộ
+        <div class="lg:col-span-9 executive-card p-3 relative">
+            <span class="text-[9px] font-black uppercase text-slate-400 italic flex items-center gap-2 mb-2">
+                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Nhật ký cập nhật cán bộ (Đọc trực tiếp từ LOG)
             </span>
             <div id="update-monitor" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2"></div>
-            <button onclick="fetchData()" class="absolute top-3 right-3 text-blue-600"><i class="fa-solid fa-sync text-[10px]"></i></button>
         </div>
     </div>
 
     <!-- BỘ LỌC -->
-    <div class="max-w-[1850px] mx-auto executive-card p-3 mb-4 flex flex-wrap items-center gap-3 justify-between shadow-sm border-t-2 border-t-blue-600">
+    <div class="max-w-[1850px] mx-auto executive-card p-3 mb-4 flex flex-wrap items-center gap-3 justify-between border-t-2 border-t-blue-600">
         <div class="flex flex-wrap items-center gap-2">
-            <select id="filter-dept" onchange="resetQuickFilter(); applyFilters();" class="w-40"></select>
-            <select id="filter-staff" onchange="resetQuickFilter(); applyFilters();" class="w-40"></select>
-            <select id="filter-time" onchange="toggleCustomDate(); applyFilters();" class="w-40"><option value="all">Toàn thời gian</option><option value="month">Tháng này</option><option value="custom">Chọn ngày</option></select>
-            <div id="custom-date-container" class="hidden flex items-center gap-2 border-l pl-2"><input type="date" id="date-from" onchange="applyFilters()" class="w-32"><input type="date" id="date-to" onchange="applyFilters()" class="w-32"></div>
+            <select id="filter-dept" onchange="resetQuickFilter(); applyFilters();" class="w-44"></select>
+            <select id="filter-staff" onchange="resetQuickFilter(); applyFilters();" class="w-44"></select>
+            <select id="filter-time" onchange="applyFilters();" class="w-44"><option value="all">Toàn thời gian</option><option value="month">Tháng này</option></select>
         </div>
-        <input type="text" id="search-box" onkeyup="applyFilters()" placeholder="Tra cứu mã, tên, nội dung..." class="w-64">
+        <div class="flex gap-2">
+            <input type="text" id="search-box" onkeyup="applyFilters()" placeholder="Tìm mã, tên, nội dung..." class="w-72">
+            <button onclick="fetchData()" class="bg-blue-700 text-white px-4 rounded-lg"><i class="fa-solid fa-sync"></i></button>
+        </div>
     </div>
 
-    <!-- DÒNG THỐNG KÊ (KPI) - CAO 110PX -->
+    <!-- KPI CHỈ SỐ - THU NHỎ CHIỀU CAO -->
     <div class="max-w-[1850px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-4 text-center">
         <div onclick="setQuickFilter('all')" id="card-all" class="stat-card active shadow-sm">
-            <p id="stat-title" class="text-slate-500 text-[9px] font-black uppercase">Tiếp nhận</p>
-            <h2 id="st-tong" class="text-4xl font-black text-slate-900 tracking-tighter">0</h2>
-            <p id="st-percent" class="text-[9px] font-bold text-blue-600 mt-0.5 italic"></p>
+            <p id="stat-title" class="text-slate-500 text-[10px] font-bold uppercase">Tổng hồ sơ</p>
+            <h2 id="st-tong" class="text-3xl font-black text-slate-900 tracking-tighter">0</h2>
+            <p id="st-percent" class="text-[9px] font-bold text-blue-600 mt-1 italic"></p>
         </div>
-        <div onclick="setQuickFilter('done')" id="card-done" class="stat-card border-b-emerald-500 shadow-sm"><p class="text-emerald-600 text-[9px] font-black uppercase">Hoàn thành</p><h2 id="st-xong" class="text-4xl font-black text-emerald-600">0</h2></div>
-        <div onclick="setQuickFilter('processing')" id="card-processing" class="stat-card border-b-amber-500 shadow-sm"><p class="text-amber-500 text-[9px] font-black uppercase">Đang xử lý</p><h2 id="st-dang" class="text-4xl font-black text-amber-600">0</h2></div>
-        <div onclick="setQuickFilter('upcoming')" id="card-upcoming" class="stat-card border-b-indigo-500 shadow-sm"><p class="text-indigo-400 text-[9px] font-black uppercase">Sắp đến hạn</p><h2 id="st-sap" class="text-4xl font-black text-indigo-700">0</h2></div>
-        <div onclick="setQuickFilter('late')" id="card-late" class="stat-card border-b-rose-500 shadow-sm"><p class="text-rose-500 text-[9px] font-black uppercase animate-pulse">Quá hạn xử lý</p><h2 id="st-tre" class="text-4xl font-black text-rose-600">0</h2></div>
+        <div onclick="setQuickFilter('done')" id="card-done" class="stat-card border-b-emerald-500 shadow-sm"><p class="text-emerald-600 text-[10px] font-bold uppercase">Đã hoàn thành</p><h2 id="st-xong" class="text-3xl font-black text-emerald-600">0</h2></div>
+        <div onclick="setQuickFilter('processing')" id="card-processing" class="stat-card border-b-amber-500 shadow-sm"><p class="text-amber-500 text-[10px] font-bold uppercase">Đang giải quyết</p><h2 id="st-dang" class="text-3xl font-black text-amber-600">0</h2></div>
+        <div onclick="setQuickFilter('upcoming')" id="card-upcoming" class="stat-card border-b-indigo-500 shadow-sm"><p class="text-indigo-400 text-[10px] font-bold uppercase">Sắp đến hạn</p><h2 id="st-sap" class="text-3xl font-black text-indigo-700">0</h2></div>
+        <div onclick="setQuickFilter('late')" id="card-late" class="stat-card border-b-rose-500 shadow-sm"><p class="text-rose-500 text-[10px] font-bold uppercase animate-pulse">Quá hạn xử lý</p><h2 id="st-tre" class="text-3xl font-black text-rose-600">0</h2></div>
     </div>
 
-    <!-- DÒNG BIỂU ĐỒ - CAO 110PX -->
+    <!-- BIỂU ĐỒ - CAO BẰNG KPI -->
     <div class="max-w-[1850px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-3 mb-4 text-center">
-        <div class="lg:col-span-3 executive-card p-2 shadow-sm"><h3 class="text-[8px] font-black mb-1 uppercase text-slate-500">TỶ LỆ TRẠNG THÁI</h3><div class="chart-box"><canvas id="statusChart"></canvas></div></div>
-        <div class="lg:col-span-2 executive-card p-2 shadow-sm"><h3 class="text-[8px] font-black mb-1 uppercase text-emerald-600">PHÒNG BAN</h3><div class="chart-box"><canvas id="deptChart"></canvas></div></div>
-        <div class="lg:col-span-3 executive-card p-2 shadow-sm bg-blue-50/20"><h3 class="text-[8px] font-black mb-1 uppercase text-blue-700">TỶ TRỌNG CÁ NHÂN</h3><div class="chart-box"><canvas id="shareChart"></canvas></div></div>
-        <div class="lg:col-span-4 executive-card p-2 shadow-sm"><h3 class="text-[8px] font-black mb-1 uppercase text-orange-600">NĂNG SUẤT TIẾP NHẬN</h3><div class="chart-box"><canvas id="staffChart"></canvas></div></div>
+        <div class="lg:col-span-3 executive-card p-2 shadow-sm"><h3 class="text-[9px] font-black mb-1">TỶ LỆ TRẠNG THÁI</h3><div class="chart-box"><canvas id="statusChart"></canvas></div></div>
+        <div class="lg:col-span-2 executive-card p-2 shadow-sm border-x"><h3 class="text-[9px] font-black mb-1">PHÒNG BAN</h3><div class="chart-box"><canvas id="deptChart"></canvas></div></div>
+        <div class="lg:col-span-3 executive-card p-2 shadow-sm bg-blue-50/20"><h3 class="text-[9px] font-black mb-1">TỶ TRỌNG CÔNG VIỆC</h3><div class="chart-box"><canvas id="shareChart"></canvas></div></div>
+        <div class="lg:col-span-4 executive-card p-2 shadow-sm"><h3 class="text-[9px] font-black mb-1">HIỆU SUẤT TIẾP NHẬN</h3><div class="chart-box"><canvas id="staffChart"></canvas></div></div>
     </div>
 
-    <!-- BẢNG DỮ LIỆU -->
-    <div class="max-w-[1850px] mx-auto executive-card overflow-hidden shadow-sm border-t-4 border-t-blue-700">
-        <div class="px-5 py-3 bg-slate-50 border-b flex justify-between items-center">
-            <h3 class="font-black text-slate-800 uppercase italic text-[10px] tracking-widest flex items-center gap-2">
-                <i class="fa-solid fa-list-ul text-blue-700"></i> Danh sách hồ sơ (Nhấn dòng để xem chi tiết)
-            </h3>
-            <span id="result-count" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[9px] font-black tracking-widest">0 HỒ SƠ</span>
+    <!-- BẢNG CHI TIẾT -->
+    <div class="max-w-[1850px] mx-auto executive-card overflow-hidden shadow-sm mb-6">
+        <div class="px-5 py-3 bg-slate-50 border-b flex justify-between items-center border-slate-200">
+            <h3 class="font-black text-slate-800 uppercase italic text-[11px]">Danh sách hồ sơ chi tiết</h3>
+            <span id="result-count" class="bg-slate-900 text-white px-3 py-1 rounded-lg text-[9px] font-black">0 HỒ SƠ</span>
         </div>
-        <div class="overflow-auto max-h-[500px] bg-white">
+        <div class="overflow-auto max-h-[500px]">
             <table class="w-full text-left border-collapse cursor-pointer">
                 <thead>
                     <tr>
@@ -128,78 +125,83 @@
                         <th class="px-5 text-center">Trạng thái</th>
                     </tr>
                 </thead>
-                <tbody id="main-table" class="divide-y divide-slate-100 text-[13px] bg-white text-slate-700 font-bold italic"></tbody>
+                <tbody id="main-table" class="divide-y divide-slate-100 text-[14px] bg-white text-slate-700 font-bold italic"></tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // --- QUAN TRỌNG: ĐÂY LÀ LINK ĐÃ ĐƯỢC LÀM SẠCH ---
-        const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKU4-zaoOYL1wM1im8Pou1YJHXdfuvTKs23Sd_WhzItBACVGVBP0tTpxjOe9C8EKpGb_eOA6-bg44k/pub?gid=548313690&single=true&output=csv';
+        // --- QUAN TRỌNG: ANH KIỂM TRA LẠI 2 LINK NÀY ---
+        const DATA_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKU4-zaoOYL1wM1im8Pou1YJHXdfuvTKs23Sd_WhzItBACVGVBP0tTpxjOe9C8EKpGb_eOA6-bg44k/pub?gid=548313690&single=true&output=csv';
+        const LOG_URL  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSKU4-zaoOYL1wM1im8Pou1YJHXdfuvTKs23Sd_WhzItBACVGVBP0tTpxjOe9C8EKpGb_eOA6-bg44k/pub?gid=1920150993&single=true&output=csv'; // Anh thay số GID của sheet LOG vào đây
 
         let originalData = [];
         let quickFilter = 'all';
         let charts = {};
 
-        function parseCSV(text) {
-            const result = []; let row = [], cell = "", inQuotes = false;
+        // HÀM GIẢI MÃ CSV SIÊU CẤP (Xử lý được xuống dòng nội bộ)
+        function parseRobustCSV(text) {
+            const rows = [];
+            let row = [];
+            let field = "";
+            let inQuotes = false;
             for (let i = 0; i < text.length; i++) {
-                let char = text[i], nxt = text[i+1];
-                if (char === '"' && inQuotes && nxt === '"') { cell += '"'; i++; }
+                const char = text[i];
+                const nextChar = text[i+1];
+                if (char === '"' && inQuotes && nextChar === '"') { field += '"'; i++; }
                 else if (char === '"') inQuotes = !inQuotes;
-                else if (char === ',' && !inQuotes) { row.push(cell); cell = ""; }
+                else if (char === ',' && !inQuotes) { row.push(field); field = ""; }
                 else if ((char === '\r' || char === '\n') && !inQuotes) {
-                    if (cell !== "" || row.length > 0) { row.push(cell); result.push(row); }
-                    row = []; cell = ""; if (char === '\r' && nxt === '\n') i++;
-                } else cell += char;
+                    if (field !== "" || row.length > 0) { row.push(field); rows.push(row); }
+                    row = []; field = ""; if (char === '\r' && nextChar === '\n') i++;
+                } else field += char;
             }
-            if (cell !== "" || row.length > 0) { row.push(cell); result.push(row); }
-            return result;
+            if (field !== "" || row.length > 0) { row.push(field); rows.push(row); }
+            return rows;
         }
 
         async function fetchData() {
             try {
-                const res = await fetch(CSV_URL);
+                // 1. Tải dữ liệu chính
+                const res = await fetch(DATA_URL);
                 const text = await res.text();
-                const allRows = parseCSV(text);
+                const allRows = parseRobustCSV(text);
                 
-                // Lọc lấy dữ liệu từ hàng 4 trở xuống (index 3) có chứa mã hồ sơ hoặc tên cán bộ
-                originalData = allRows.slice(3).filter(r => r[1] && r[1].toString().trim() !== "").map(r => {
+                // Lấy tất cả dòng từ hàng 4 (index 3) trở xuống có mã hoặc cán bộ
+                originalData = allRows.slice(3).filter(r => r[1] && r[1].trim() !== "").map(r => {
                     const statusRaw = r[8] ? r[8].trim() : "Đang xử lý";
                     const deadline = parseDate(r[6]);
                     let computed = "processing";
                     if (statusRaw.toLowerCase().includes("hoàn thành") || statusRaw.toLowerCase().includes("kết quả")) computed = "done";
                     else if (deadline && deadline < new Date()) computed = "late";
                     else if (deadline && (deadline - new Date())/(1000*60*60*24) <= 2) computed = "upcoming";
-                    
-                    return { id: r[1].trim(), content: r[2] || "Trống", sender: r[3] || "Chưa rõ", staff: r[4] || "Chưa rõ", receiveDate: parseDate(r[5]), deadline: deadline, dept: r[7] || "VPĐ", statusText: statusRaw, computedStatus: computed, lastUpdateStr: r[5] || "--", source: r[10] || "--" };
+                    return { id: r[1].trim(), content: r[2] || "Trống", sender: r[3] || "Chưa rõ", staff: r[4].trim(), receiveDate: parseDate(r[5]), deadline: deadline, dept: r[7] || "VPĐ", statusText: statusRaw, computedStatus: computed, source: r[10] || "--" };
                 });
-                populateFilters(); updateMonitor(); applyFilters();
-            } catch (err) { console.error(err); }
+
+                // 2. Tải dữ liệu Log cập nhật
+                fetchLogData();
+
+                populateFilters(); 
+                applyFilters();
+            } catch (err) { console.error("Lỗi:", err); }
         }
 
-        function showDetail(id) {
-            const d = originalData.find(item => item.id === id);
-            if (!d) return;
-            const content = document.getElementById('modal-content');
-            const fields = [
-                { label: "Mã số hồ sơ", value: d.id, color: "text-blue-700 font-mono text-lg" },
-                { label: "Trạng thái", value: d.statusText, color: "text-emerald-700 uppercase" },
-                { label: "Nội dung thủ tục", value: d.content, full: true, color: "text-slate-900" },
-                { label: "Người nộp hồ sơ", value: d.sender },
-                { label: "Cán bộ thụ lý", value: d.staff },
-                { label: "Phòng ban thụ lý", value: d.dept },
-                { label: "Ngày tiếp nhận", value: d.receiveDate ? d.receiveDate.toLocaleDateString('vi-VN') : "--" },
-                { label: "Hạn trả kết quả", value: d.deadline ? d.deadline.toLocaleDateString('vi-VN') : "--" },
-                { label: "Nguồn dữ liệu gốc", value: d.source, color: "text-slate-400 italic" }
-            ];
-            content.innerHTML = fields.map(f => `<div class="${f.full ? 'col-span-1 md:col-span-2' : ''} border-b border-slate-100 pb-1"><p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">${f.label}</p><p class="font-bold ${f.color || 'text-slate-800'}">${f.value}</p></div>`).join('');
-            document.getElementById('detailModal').classList.add('modal-active');
+        async function fetchLogData() {
+            try {
+                const res = await fetch(LOG_URL);
+                const text = await res.text();
+                const logRows = parseRobustCSV(text).slice(1); // Bỏ tiêu đề
+                const container = document.getElementById('update-monitor');
+                container.innerHTML = logRows.map(r => `
+                    <div class="bg-slate-50 p-2 rounded-lg border border-slate-200 shadow-sm">
+                        <p class="text-[7px] font-black text-slate-400 uppercase truncate">${r[0]}</p>
+                        <p class="text-[9px] font-extrabold text-blue-600 mt-0.5">${r[1] ? r[1].split(' ')[0] : '--'}</p>
+                    </div>
+                `).join('');
+            } catch (e) {}
         }
 
-        function closeModal() { document.getElementById('detailModal').classList.remove('modal-active'); }
         function parseDate(str) { if (!str || str.trim() === "") return null; const p = str.split('/'); return p.length === 3 ? new Date(p[2].trim(), p[1]-1, p[0].trim()) : null; }
-        function toggleCustomDate() { document.getElementById('custom-date-container').classList.toggle('hidden', document.getElementById('filter-time').value !== 'custom'); }
         
         function populateFilters() {
             const staffs = [...new Set(originalData.map(d => d.staff))].sort().filter(Boolean);
@@ -208,36 +210,28 @@
             const sCur = sSelect.value, dCur = dSelect.value;
             sSelect.innerHTML = '<option value="all">Tất cả Cán bộ</option>';
             staffs.forEach(s => sSelect.innerHTML += `<option value="${s}" ${s===sCur?'selected':''}>${s}</option>`);
-            dSelect.innerHTML = '<option value="all">Tất cả Phòng Ban</option>';
+            dSelect.innerHTML = '<option value="all">Tất cả các Phòng</option>';
             depts.forEach(d => dSelect.innerHTML += `<option value="${d}" ${d===dCur?'selected':''}>${d}</option>`);
         }
 
         function setQuickFilter(type) { quickFilter = type; document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active')); document.getElementById('card-' + type).classList.add('active'); applyFilters(); }
         function resetQuickFilter() { quickFilter = 'all'; document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active')); document.getElementById('card-all').classList.add('active'); }
 
-        function updateMonitor() {
-            const staffs = [...new Set(originalData.map(d => d.staff))].filter(Boolean);
-            document.getElementById('update-monitor').innerHTML = staffs.slice(0, 12).map(name => {
-                const personData = originalData.filter(d => d.staff === name);
-                return `<div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200 shadow-sm text-center"><p class="text-[7px] font-black text-slate-400 uppercase truncate">${name}</p><p class="text-[9px] font-extrabold text-blue-600 mt-0.5">${personData[0].lastUpdateStr}</p></div>`;
-            }).join('');
-        }
-
         function applyFilters() {
             const dept = document.getElementById('filter-dept').value, staff = document.getElementById('filter-staff').value, timeMode = document.getElementById('filter-time').value, search = document.getElementById('search-box').value.toLowerCase().trim();
-            const now = new Date(), dFrom = document.getElementById('date-from').value ? new Date(document.getElementById('date-from').value) : null, dTo = document.getElementById('date-to').value ? new Date(document.getElementById('date-to').value) : null;
+            const now = new Date();
 
             const baseFiltered = originalData.filter(d => {
                 const matchDept = dept === 'all' || d.dept === dept, matchStaff = staff === 'all' || d.staff === staff, matchSearch = search === '' || d.id.toLowerCase().includes(search) || d.content.toLowerCase().includes(search);
                 let matchTime = true;
-                if(d.receiveDate) { if(timeMode === 'month') matchTime = d.receiveDate.getMonth() === now.getMonth() && d.receiveDate.getFullYear() === now.getFullYear(); else if(timeMode === 'custom' && dFrom && dTo) matchTime = d.receiveDate >= dFrom && d.receiveDate <= (new Date(dTo.setHours(23,59,59))); }
+                if(d.receiveDate && timeMode === 'month') matchTime = d.receiveDate.getMonth() === now.getMonth() && d.receiveDate.getFullYear() === now.getFullYear();
                 return matchDept && matchStaff && matchSearch && matchTime;
             });
 
-            const totalPhuong = originalData.length;
-            const percent = ((baseFiltered.length / totalPhuong) * 100).toFixed(1);
+            const percent = ((baseFiltered.length / originalData.length) * 100).toFixed(1);
+            document.getElementById('stat-title').innerText = staff === 'all' ? (dept === 'all' ? "Tiếp nhận toàn phường" : "Phòng: " + dept) : "Cán bộ: " + staff;
             document.getElementById('st-tong').innerText = baseFiltered.length;
-            document.getElementById('st-percent').innerText = staff === 'all' && dept === 'all' ? "" : `CB chiếm ${percent}% Phường`;
+            document.getElementById('st-percent').innerText = staff === 'all' && dept === 'all' ? "" : `Chiếm ${percent}% khối lượng`;
 
             document.getElementById('st-xong').innerText = baseFiltered.filter(i => i.computedStatus === 'done').length;
             document.getElementById('st-dang').innerText = baseFiltered.filter(i => i.computedStatus === 'processing').length;
@@ -254,33 +248,31 @@
                 if(d.computedStatus === 'done') { cls = "bg-done"; icon = "fa-check-circle"; }
                 else if(d.computedStatus === 'late') { cls = "bg-late animate-pulse"; icon = "fa-warning"; label = "Quá hạn"; }
                 else if(d.computedStatus === 'upcoming') { cls = "bg-upcoming"; icon = "fa-hourglass-half"; label = "Sắp hạn"; }
-                return `<tr onclick="showDetail('${d.id}')" class="hover:bg-blue-50 border-b">
-                    <td class="px-5 py-3 font-mono text-blue-700 font-bold text-[11px]">${d.id}</td>
-                    <td class="px-5 py-3 text-slate-800 leading-snug font-bold"><div class="text-content">${d.content}</div></td>
-                    <td class="px-5 text-slate-400 font-bold uppercase text-[9px]">${d.dept}</td>
-                    <td class="px-5 text-slate-500 font-bold text-[9px] uppercase italic">${d.staff}</td>
-                    <td class="px-5 text-[10px] text-slate-500 font-bold text-center">${d.deadline ? d.deadline.toLocaleDateString('vi-VN') : '--'}</td>
-                    <td class="px-5 text-center"><span class="status-pill ${cls}"><i class="fa-solid ${icon}"></i>${label}</span></td>
-                    <td class="px-5 text-center text-blue-400 text-[10px]"><i class="fa-solid fa-eye"></i></td>
-                </tr>`;
+                return `<tr onclick="showDetail('${d.id}')" class="hover:bg-blue-50 border-b"><td class="px-5 py-3 font-mono text-blue-700 font-bold text-[11px]">${d.id}</td><td class="px-5 py-3 text-slate-800 leading-snug font-bold text-[13px]"><div class="text-content">${d.content}</div></td><td class="px-5 text-slate-400 font-bold uppercase text-[10px]">${d.dept}</td><td class="px-5 text-slate-500 font-bold text-[10px] uppercase italic">${d.staff}</td><td class="px-5 text-[10px] text-slate-500 font-bold text-center">${d.deadline ? d.deadline.toLocaleDateString('vi-VN') : '--'}</td><td class="px-5 text-center"><span class="status-pill ${cls}"><i class="fa-solid ${icon}"></i>${label}</span></td></tr>`;
             }).join('');
             document.getElementById('result-count').innerText = `${data.length} HỒ SƠ`;
         }
 
+        function showDetail(id) {
+            const d = originalData.find(item => item.id === id); if (!d) return;
+            const content = document.getElementById('modal-content');
+            const fields = [ { l: "Mã hồ sơ", v: d.id, c: "text-blue-700 font-mono" }, { l: "Trạng thái", v: d.statusText, c: "text-emerald-700 uppercase" }, { l: "Nội dung", v: d.content, f: true }, { l: "Người nộp", v: d.sender }, { l: "Cán bộ", v: d.staff }, { l: "Ngày nhận", v: d.receiveDate ? d.receiveDate.toLocaleDateString('vi-VN') : "--" }, { l: "Hạn trả", v: d.deadline ? d.deadline.toLocaleDateString('vi-VN') : "--" }, { l: "Phòng", v: d.dept }, { l: "Gốc", v: d.source } ];
+            content.innerHTML = fields.map(f => `<div class="${f.f ? 'col-span-2' : ''} border-b pb-1"><p class="text-[8px] text-slate-400 uppercase font-black">${f.l}</p><p class="font-bold ${f.c || 'text-slate-800'}">${f.v}</p></div>`).join('');
+            document.getElementById('detailModal').classList.add('modal-active');
+        }
+
+        function closeModal() { document.getElementById('detailModal').classList.remove('modal-active'); }
+
         function updateCharts(data, staffName) {
             const sCtx = document.getElementById('statusChart').getContext('2d'), dCtx = document.getElementById('deptChart').getContext('2d'), stCtx = document.getElementById('staffChart').getContext('2d'), shareCtx = document.getElementById('shareChart').getContext('2d');
             if (charts.status) charts.status.destroy(); if (charts.dept) charts.dept.destroy(); if (charts.staff) charts.staff.destroy(); if (charts.share) charts.share.destroy();
-            
-            charts.status = new Chart(sCtx, { type: 'doughnut', data: { labels: ['Xong', 'Làm', 'Trễ', 'Sắp'], datasets: [{ data: [data.filter(i => i.computedStatus === 'done').length, data.filter(i => i.computedStatus === 'processing').length, data.filter(i => i.computedStatus === 'late').length, data.filter(i => i.computedStatus === 'upcoming').length], backgroundColor: ['#10b981', '#f59e0b', '#f43f5e', '#6366f1'], borderWidth: 0 }] }, options: { cutout: '75%', maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-            
+            charts.status = new Chart(sCtx, { type: 'doughnut', data: { labels: ['Xong', 'Đang làm', 'Trễ', 'Sắp hạn'], datasets: [{ data: [data.filter(i => i.computedStatus === 'done').length, data.filter(i => i.computedStatus === 'processing').length, data.filter(i => i.computedStatus === 'late').length, data.filter(i => i.computedStatus === 'upcoming').length], backgroundColor: ['#10b981', '#f59e0b', '#f43f5e', '#6366f1'], borderWidth: 0 }] }, options: { cutout: '75%', maintainAspectRatio: false, plugins: { legend: { display: false } } } });
             const depts = [...new Set(originalData.map(d => d.dept))].filter(Boolean);
-            charts.dept = new Chart(dCtx, { type: 'bar', data: { labels: depts, datasets: [{ label: 'Hồ sơ', data: depts.map(n => data.filter(d => d.dept === n).length), backgroundColor: '#10b981', borderRadius: 5 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, display: false }, x: { display: false } } } });
-            
+            charts.dept = new Chart(dCtx, { type: 'bar', data: { labels: depts, datasets: [{ label: 'HS', data: depts.map(n => data.filter(d => d.dept === n).length), backgroundColor: '#10b981', borderRadius: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { font: { size: 9, weight: 'bold' } } } } } });
             const otherCount = originalData.length - data.length;
             charts.share = new Chart(shareCtx, { type: 'pie', data: { labels: ['Chọn', 'Khác'], datasets: [{ data: [data.length, otherCount], backgroundColor: ['#3b82f6', '#e2e8f0'], borderWidth: 2, borderColor: '#fff' }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-            
             const staffsInFilter = [...new Set(data.map(d => d.staff))].filter(Boolean); 
-            charts.staff = new Chart(stCtx, { type: 'bar', data: { labels: staffsInFilter, datasets: [{ label: 'Tiếp nhận', data: staffsInFilter.map(n => data.filter(d => d.staff === n).length), backgroundColor: '#3b82f6', borderRadius: 8 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, display: false }, x: { display: false } } } });
+            charts.staff = new Chart(stCtx, { type: 'bar', data: { labels: staffsInFilter, datasets: [{ label: 'HS', data: staffsInFilter.map(n => data.filter(d => d.staff === n).length), backgroundColor: '#3b82f6', borderRadius: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { font: { size: 9, weight: 'bold' }, autoSkip: false, maxRotation: 45 } } } } });
         }
 
         setInterval(() => { const n = new Date(); document.getElementById('live-clock').innerText = n.toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
