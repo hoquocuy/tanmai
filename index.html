@@ -49,10 +49,9 @@
         </div>
     </div>
 
-    <!-- KHU VỰC IN (ẨN TRÊN WEB) -->
     <div id="print-area" class="hidden p-10"></div>
 
-    <!-- HEADER -->
+    <!-- HEADER & GIÁM SÁT TIẾP NHẬN -->
     <div class="max-w-[1850px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-3 mb-4 no-print">
         <header class="lg:col-span-3 executive-card p-4 flex items-center space-x-3 border-l-8 border-l-blue-600 shadow-sm">
             <div class="bg-blue-600 w-12 h-12 rounded-lg flex items-center justify-center shadow-md"><i class="fa-solid fa-landmark text-white text-xl"></i></div>
@@ -61,14 +60,17 @@
                 <p id="live-clock" class="text-[9px] font-bold text-slate-500 mt-1 uppercase"></p>
             </div>
         </header>
-        <div class="lg:col-span-9 executive-card p-4 shadow-sm border-l-8 border-l-emerald-500 flex justify-between items-center">
-            <div>
-                <span class="text-[9px] font-black uppercase text-slate-400 italic flex items-center gap-2 mb-1">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Thời điểm tiếp nhận hồ sơ gần nhất
+        <div class="lg:col-span-9 executive-card p-3 shadow-sm border-l-8 border-l-emerald-500 relative">
+            <div class="flex justify-between items-center mb-2 px-1">
+                <span class="text-[9px] font-black uppercase text-slate-400 italic flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Ngày tiếp nhận hồ sơ mới nhất của từng cán bộ
                 </span>
-                <h2 id="monitor-date" class="text-xl font-black text-emerald-700 uppercase">ĐANG TÍNH TOÁN...</h2>
+                <button onclick="fetchData()" class="text-blue-600 hover:rotate-180 transition-all duration-500"><i class="fa-solid fa-sync text-xs"></i></button>
             </div>
-            <button onclick="fetchData()" class="bg-blue-50 text-blue-600 p-3 rounded-xl hover:rotate-180 transition-all duration-500 shadow-sm"><i class="fa-solid fa-sync text-sm"></i></button>
+            <!-- BẢNG GIÁM SÁT CÁN BỘ -->
+            <div id="update-monitor" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
+                <!-- Dữ liệu cán bộ tự động sinh ra tại đây -->
+            </div>
         </div>
     </div>
 
@@ -149,6 +151,12 @@
             return rows;
         }
 
+        function parseDate(str) { 
+            if (!str || str.trim() === "") return null; 
+            const p = str.split('/'); 
+            return p.length === 3 ? new Date(p[2].trim(), p[1]-1, p[0].trim()) : null; 
+        }
+
         async function fetchData() {
             try {
                 const res = await fetch(DATA_URL);
@@ -167,21 +175,32 @@
             } catch (err) { console.error(err); }
         }
 
-        function parseDate(str) { 
-            if (!str || str.trim() === "") return null; 
-            const p = str.split('/'); 
-            return p.length === 3 ? new Date(p[2].trim(), p[1]-1, p[0].trim()) : null; 
+        function updateStaffMonitor(data) {
+            const monitor = document.getElementById('update-monitor');
+            const staffDates = {};
+            // Tính toán ngày lớn nhất cho từng cán bộ có trong dữ liệu hiện tại
+            data.forEach(item => {
+                if (item.staff && item.receiveDate) {
+                    if (!staffDates[item.staff] || item.receiveDate > staffDates[item.staff]) {
+                        staffDates[item.staff] = item.receiveDate;
+                    }
+                }
+            });
+
+            const sortedStaff = Object.keys(staffDates).sort();
+            monitor.innerHTML = sortedStaff.map(name => `
+                <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg shadow-sm text-center">
+                    <p class="text-[7px] font-black text-slate-400 uppercase truncate">${name}</p>
+                    <p class="text-[10px] font-black text-emerald-600 mt-0.5">${staffDates[name].toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit'})}</p>
+                </div>
+            `).join('');
         }
 
         function showDetail(id) {
             const d = originalData.find(item => item.id === id); if (!d) return;
             const content = document.getElementById('modal-content');
-            const fields = [ { l: "Mã hồ sơ", v: d.id, c: "text-blue-700 font-mono" }, { l: "Trạng thái", v: d.statusText, c: "text-emerald-700 uppercase font-black" }, { l: "Nội dung thủ tục", v: d.content, f: true }, { l: "Người nộp", v: d.sender }, { l: "Cán bộ tiếp nhận", v: d.staff }, { l: "Ngày tiếp nhận", v: d.receiveDate ? d.receiveDate.toLocaleDateString('vi-VN') : "--" }, { l: "Hạn trả hồ sơ", v: d.deadline ? d.deadline.toLocaleDateString('vi-VN') : "--" }, { l: "Phòng ban", v: d.dept }, { l: "Nguồn sheet", v: d.source } ];
+            const fields = [ { l: "Mã hồ sơ", v: d.id, c: "text-blue-700 font-mono" }, { l: "Trạng thái", v: d.statusText, c: "text-emerald-700 uppercase font-black" }, { l: "Nội dung thủ tục", v: d.content, f: true }, { l: "Người nộp", v: d.sender }, { l: "Cán bộ tiếp nhận", v: d.staff }, { l: "Ngày tiếp nhận", v: d.receiveDate ? d.receiveDate.toLocaleDateString('vi-VN') : "--" }, { l: "Hạn trả hồ sơ", v: d.deadline ? d.deadline.toLocaleDateString('vi-VN') : "--" }, { l: "Phòng ban", v: d.dept }, { l: "Nguồn gốc", v: d.source } ];
             content.innerHTML = fields.map(f => `<div class="${f.f ? 'col-span-2' : ''} border-b pb-2"><p class="text-[9px] text-slate-400 uppercase font-black tracking-widest">${f.l}</p><p class="font-bold ${f.c || 'text-slate-800'}">${f.v}</p></div>`).join('');
-            
-            // In nội dung vào area in ẩn
-            document.getElementById('print-area').innerHTML = `<div style="text-align:center; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;"><h1 style="font-size:22px; font-weight:bold;">PHƯỜNG TÂN MAI - PHIẾU TRA CỨU IOC</h1></div><div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">${fields.map(f => `<div><strong>${f.l}:</strong> ${f.v}</div>`).join('')}</div>`;
-            
             document.getElementById('detailModal').classList.add('modal-active');
         }
 
@@ -213,12 +232,9 @@
                 return matchDept && matchStaff && matchSearch && matchTime;
             });
 
-            // 1. TÍNH NGÀY CẬP NHẬT MỚI NHẤT TRONG DỮ LIỆU ĐÃ LỌC
-            let maxDate = new Date(0);
-            baseFiltered.forEach(i => { if(i.receiveDate && i.receiveDate > maxDate) maxDate = i.receiveDate; });
-            document.getElementById('monitor-date').innerText = maxDate.getTime() > 0 ? maxDate.toLocaleDateString('vi-VN') : "CHƯA CÓ HỒ SƠ";
+            // Cập nhật bảng giám sát cán bộ
+            updateStaffMonitor(baseFiltered);
 
-            // 2. CẬP NHẬT KPI
             document.getElementById('stat-title').innerText = staff === 'all' ? (dept === 'all' ? "Tiếp nhận toàn phường" : "Phòng: " + dept) : "CB: " + staff;
             document.getElementById('st-tong').innerText = baseFiltered.length;
             document.getElementById('st-percent').innerText = staff === 'all' && dept === 'all' ? "" : `Chiếm ${((baseFiltered.length / originalData.length) * 100).toFixed(1)}% khối lượng`;
@@ -237,9 +253,9 @@
                 if(d.computedStatus === 'done') { cls = "bg-done"; icon = "fa-check-circle"; }
                 else if(d.computedStatus === 'late') { cls = "bg-late"; icon = "fa-warning"; label = "Quá hạn"; }
                 else if(d.computedStatus === 'upcoming') { cls = "bg-upcoming"; icon = "fa-hourglass-half"; label = "Sắp hạn"; }
-                return `<tr class="hover:bg-blue-50 transition-colors border-b border-slate-50">
+                return `<tr class="hover:bg-blue-50 border-b border-slate-50 transition-colors">
                     <td class="px-5 py-4 font-mono text-blue-700 font-black text-[13px]">${d.id}</td>
-                    <td class="px-5 py-4 text-slate-900 leading-snug font-extrabold text-[15px]"><div class="text-content">${d.content}</div></td>
+                    <td class="px-5 py-4 text-slate-900 font-extrabold text-[15px]"><div class="text-content">${d.content}</div></td>
                     <td class="px-5 text-slate-400 font-black uppercase text-[10px]">${d.dept}</td>
                     <td class="px-5 text-[11px] text-slate-500 font-black text-center">${d.receiveDate ? d.receiveDate.toLocaleDateString('vi-VN') : '--'}</td>
                     <td class="px-5 text-center"><span class="status-pill ${cls}"><i class="fa-solid ${icon}"></i> ${label}</span></td>
@@ -254,19 +270,16 @@
             if (charts.status) charts.status.destroy(); if (charts.dept) charts.dept.destroy(); if (charts.staff) charts.staff.destroy(); if (charts.share) charts.share.destroy();
             
             charts.status = new Chart(sCtx, { type: 'doughnut', data: { labels: ['Xong', 'Đang xử lý', 'Trễ', 'Sắp'], datasets: [{ data: [data.filter(i => i.computedStatus === 'done').length, data.filter(i => i.computedStatus === 'processing').length, data.filter(i => i.computedStatus === 'late').length, data.filter(i => i.computedStatus === 'upcoming').length], backgroundColor: ['#10b981', '#f59e0b', '#f43f5e', '#6366f1'], borderWidth: 0 }] }, options: { cutout: '70%', maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: 'bold' } } } } } });
-            
             const depts = [...new Set(originalData.map(d => d.dept))].filter(Boolean);
             charts.dept = new Chart(dCtx, { type: 'bar', data: { labels: depts, datasets: [{ data: depts.map(n => data.filter(d => d.dept === n).length), backgroundColor: '#10b981', borderRadius: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { font: { size: 9, weight: 'bold' } } } } } });
-            
             charts.share = new Chart(shareCtx, { type: 'pie', data: { labels: ['Hiện tại', 'Còn lại'], datasets: [{ data: [data.length, originalData.length - data.length], backgroundColor: ['#3b82f6', '#e2e8f0'] }] }, options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: 'bold' } } } } } });
-            
             const topStaff = [...new Set(data.map(d => d.staff))].slice(0, 8);
             charts.staff = new Chart(stCtx, { type: 'bar', data: { labels: topStaff, datasets: [{ data: topStaff.map(n => data.filter(d => d.staff === n).length), backgroundColor: '#6366f1', borderRadius: 4 }] }, options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { ticks: { font: { size: 9, weight: 'bold' } } } } } });
         }
 
         setInterval(() => { const n = new Date(); document.getElementById('live-clock').innerText = n.toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
         fetchData();
-        setInterval(fetchData, 600000); // 10 phút tải lại 1 lần
+        setInterval(fetchData, 600000);
     </script>
 </body>
 </html>
