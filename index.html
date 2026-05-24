@@ -68,13 +68,11 @@
         <div class="lg:col-span-9 executive-card p-3 shadow-sm border-l-8 border-l-emerald-500 relative">
             <div class="flex justify-between items-center mb-2 px-1">
                 <span class="text-[9px] font-black uppercase text-slate-400 italic flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Thời điểm tiếp nhận hồ sơ gần nhất của các cán bộ
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Ngày hồ sơ mới nhất cán bộ đã tiếp nhận
                 </span>
                 <button onclick="fetchData()" class="text-blue-600 hover:rotate-180 transition-all duration-500"><i class="fa-solid fa-sync text-xs"></i></button>
             </div>
-            <div id="update-monitor" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
-                <!-- Data injected by JS -->
-            </div>
+            <div id="update-monitor" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2"></div>
         </div>
     </div>
 
@@ -158,7 +156,8 @@
         function parseDate(str) { 
             if (!str || str.trim() === "") return null; 
             const p = str.split('/'); 
-            return p.length === 3 ? new Date(p[2].trim(), p[1]-1, p[0].trim()) : null; 
+            if (p.length !== 3) return null;
+            return new Date(p[2].trim(), p[1]-1, p[0].trim()); 
         }
 
         async function fetchData() {
@@ -172,15 +171,18 @@
                     const statusRaw = r[8] ? r[8].trim() : "Đang xử lý";
                     const deadline = parseDate(r[6]);
                     
-                    // --- LOGIC XÁC ĐỊNH TRẠNG THÁI THÔNG MINH ---
+                    // --- LOGIC XÁC ĐỊNH TRẠNG THÁI CẢI TIẾN ---
                     let computed = "processing";
                     const sLower = statusRaw.toLowerCase();
-                    const dateRegex = /\d{1,2}\/\d{1,2}\/(\d{4}|\d{2})/; // Tìm dd/mm/yyyy
+                    const dateRegex = /\d{1,2}\/\d{1,2}\/(\d{4}|\d{2})/;
                     
-                    const isDoneKeyword = sLower.includes("trả kết quả") || sLower.includes("có kết quả") || sLower.includes("hoàn thành");
-                    const hasDateValue = dateRegex.test(statusRaw);
+                    // Trường hợp 1: Chữ trong cột I là "Hoàn thành" (văn bản thuần túy)
+                    const isStrictDone = sLower === "hoàn thành";
+                    
+                    // Trường hợp 2: Có cụm từ "trả kết quả" VÀ có ngày tháng đi kèm
+                    const isKeywordDone = (sLower.includes("trả kết quả") || sLower.includes("có kết quả")) && dateRegex.test(statusRaw);
 
-                    if (isDoneKeyword && hasDateValue) {
+                    if (isStrictDone || isKeywordDone) {
                         computed = "done";
                     } else if (deadline && deadline < now) {
                         computed = "late";
@@ -222,16 +224,15 @@
             const content = document.getElementById('modal-content');
             const fields = [ 
                 { l: "Mã hồ sơ", v: d.id, c: "text-blue-700 font-mono" }, 
-                { l: "Trạng thái thực tế", v: d.statusText, c: d.computedStatus === 'done' ? "text-emerald-700" : "text-slate-800" }, 
+                { l: "Trạng thái ghi nhận", v: d.statusText, c: d.computedStatus === 'done' ? "text-emerald-700" : "text-slate-800" }, 
                 { l: "Nội dung thủ tục", v: d.content, f: true }, 
                 { l: "Người nộp", v: d.sender }, { l: "Cán bộ tiếp nhận", v: d.staff }, 
                 { l: "Ngày tiếp nhận", v: d.receiveDate ? d.receiveDate.toLocaleDateString('vi-VN') : "--" }, 
                 { l: "Hạn trả kết quả", v: d.deadline ? d.deadline.toLocaleDateString('vi-VN') : "--" }, 
-                { l: "Phòng ban phụ trách", v: d.dept }, { l: "Nguồn dữ liệu", v: d.source } 
+                { l: "Phòng ban phụ trách", v: d.dept }, { l: "Nguồn gốc", v: d.source } 
             ];
             content.innerHTML = fields.map(f => `<div class="${f.f ? 'col-span-2' : ''} border-b pb-2"><p class="text-[9px] text-slate-400 uppercase font-black tracking-widest">${f.l}</p><p class="font-bold ${f.c || 'text-slate-800'}">${f.v}</p></div>`).join('');
             
-            // Cập nhật vùng in
             document.getElementById('print-area').innerHTML = `
                 <div style="font-family: Arial; padding: 40px; color: black;">
                     <div style="text-align:center; border-bottom:2px solid #000; margin-bottom:20px; padding-bottom:10px;">
@@ -295,8 +296,8 @@
         function renderTable(data) {
             document.getElementById('main-table').innerHTML = data.map(d => {
                 let cls = "bg-process", icon = "fa-clock", label = d.statusText;
-                if(d.computedStatus === 'done') { cls = "bg-done"; icon = "fa-check-circle"; label = "Hoàn thành"; }
-                else if(d.computedStatus === 'late') { cls = "bg-late"; icon = "fa-warning"; label = "Quá hạn"; }
+                if(d.computedStatus === 'done') { cls = "bg-done"; icon = "fa-check-circle"; label = "Xong"; }
+                else if(d.computedStatus === 'late') { cls = "bg-late"; icon = "fa-warning"; label = "Trễ hạn"; }
                 else if(d.computedStatus === 'upcoming') { cls = "bg-upcoming"; icon = "fa-hourglass-half"; label = "Sắp hạn"; }
                 return `<tr onclick="showDetail('${d.id}')" class="hover:bg-blue-50 transition-colors border-b border-slate-50 cursor-pointer">
                     <td class="px-5 py-4 font-mono text-blue-700 font-black text-[13px]">${d.id}</td>
@@ -304,7 +305,7 @@
                     <td class="px-5 text-slate-400 font-black uppercase text-[10px]">${d.dept}</td>
                     <td class="px-5 text-[11px] text-slate-500 font-black text-center">${d.deadline ? d.deadline.toLocaleDateString('vi-VN') : '--'}</td>
                     <td class="px-5 text-center"><span class="status-pill ${cls}"><i class="fa-solid ${icon}"></i> ${label}</span></td>
-                    <td class="px-5 text-center"><button class="btn-view shadow-sm">Chi tiết</button></td>
+                    <td class="px-5 text-center"><button class="btn-view shadow-sm">Xem</button></td>
                 </tr>`;
             }).join('');
             document.getElementById('result-count').innerText = `${data.length} HỒ SƠ`;
@@ -324,7 +325,7 @@
 
         setInterval(() => { const n = new Date(); document.getElementById('live-clock').innerText = n.toLocaleString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }); }, 1000);
         fetchData();
-        setInterval(fetchData, 600000); // 10 phút tải lại 1 lần
+        setInterval(fetchData, 600000);
     </script>
 </body>
-</html>
+</html
